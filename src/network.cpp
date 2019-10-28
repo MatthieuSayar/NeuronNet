@@ -73,9 +73,8 @@ std::pair<size_t, double> Network::degree(const size_t& n) const {
 
 std::vector<std::pair<size_t, double> > Network::neighbors(const size_t& n) const{
 	std::vector<std::pair<size_t, double> > neighbor;
-	for(auto& I : links){
-		if(I.first.first==n)  //le premier neuron de la paire recoit du deuxieme 
-			neighbor.push_back(std::make_pair(I.first.second,I.second));
+	for(std::map<std::pair<size_t, size_t>,double>::const_iterator I=links.lower_bound({n,0}); (I!=links.end()) and (I->first.first==n) ; ++I){  
+			neighbor.push_back(std::make_pair(I->first.second,I->second));
 	}
 	return neighbor;
 }
@@ -96,15 +95,15 @@ std::vector<double> Network::recoveries() const {
 }
 
 std::set<size_t> Network::step(const std::vector<double>& vec){
-	
+	size_t _size (size());
 	std::set<size_t> firing_indices;
-	for(size_t i(0);i<size();++i){
+	for(size_t i(0);i<_size;++i){
 		if (neuron(i).firing()){
 			firing_indices.insert(i);
 			neurons[i].reset();	
 		}
 	}
-	for(size_t j(0); j<size() ; ++j){
+	for(size_t j(0); j<_size ; ++j){
 		double total(0.0);
 		double w(1.0); 
 		if(neurons[j].is_inhibitory()){w=0.4;}
